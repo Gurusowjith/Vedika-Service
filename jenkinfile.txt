@@ -7,6 +7,5 @@ node{
      def gradleCMD = "${gradleHome}/bin/gradle"
      sh "${gradleCMD} clean build"
      } 
-   ansiblePlaybook become: true, credentialsId: 'e14ce559-0a7d-47eb-bc88-3f698e156672', installation: 'ansible', playbook: '/home/ubuntu/scripts/main.yaml'
-  }
+   ansiblePlaybook credentialsId: 'c4f2ad7f-8086-49b9-b0bb-9402c76f9090', installation: 'ansible', playbook:    '/home/ubuntu/scripts/main.yaml'  }
  
