@@ -8,3 +8,4 @@ node{
      sh "${gradleCMD} clean build"
      } 
    ansiblePlaybook installation: 'ansible', playbook: '/home/ubuntu/scripts/main.yaml' 
+   }
