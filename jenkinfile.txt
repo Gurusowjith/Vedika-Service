@@ -7,6 +7,6 @@ node{
      def gradleCMD = "${gradleHome}/bin/gradle"
      sh "${gradleCMD} clean build"
      } 
-  sshPublisher(publishers: [sshPublisherDesc(configName: 'artifact', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'java -jar functionhall-service-0.0.1-SNAPSHOT.jar', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/home', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '**/*')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+   ansiblePlaybook installation: 'ansible', playbook: '/home/ubuntu/scripts/main.yml'
   }
  
