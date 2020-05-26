@@ -7,7 +7,7 @@ node{
      def gradleCMD = "${gradleHome}/bin/gradle"
      sh "${gradleCMD} clean build"
      } 
-  sh label: '', script: '''ssh 13.126.18.103
+ sh label: '', script: '''ssh ubuntu@3.126.18.103
 cd /home/ubuntu/scripts
-ansible-playbook main.yaml'''
+sudo ansible-playbook main.yaml'''
    }
