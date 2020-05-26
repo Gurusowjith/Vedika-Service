@@ -7,5 +7,7 @@ node{
      def gradleCMD = "${gradleHome}/bin/gradle"
      sh "${gradleCMD} clean build"
      } 
-  sshPublisher(publishers: [sshPublisherDesc(configName: 'angularpipeline', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'ansible-playbook /home/ubuntu/scripts/main.yaml', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+  sh label: '', script: '''ssh 13.126.18.103
+cd /home/ubuntu/scripts
+ansible-playbook main.yaml'''
    }
