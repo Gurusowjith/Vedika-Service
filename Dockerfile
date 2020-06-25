@@ -1,6 +1,6 @@
 node{
    stage('SCM Checkout'){
-       git credentialsId: 'git-creds', url: 'https://github.com/shivastunts0327/Service-java.git'
+       git credentialsId: 'git-creds', url: 'https://github.com/Gurusowjith/Vedika-Service.git'
    }
    
    stage('gradle Package'){
