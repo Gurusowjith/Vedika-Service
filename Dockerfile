@@ -97,7 +97,7 @@ cat >vedikaservice.service <<\'EOF\'
    }
    
    stage('Creating Image'){
-   sh label: '', script: 'sudo docker build -t service .jar'
+   sh label: '', script: 'sudo docker build service .jar'
    }
    
    stage('Back to home/ubuntu'){
