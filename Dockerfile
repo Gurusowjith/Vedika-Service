@@ -1,6 +1,6 @@
 node{
    stage('SCM Checkout'){
-       git credentialsId: 'git-creds', url: 'https://github.com/Gurusowjith/Vedika-Service.git'
+       git credentialsId: 'git-creds', url: 'https://github.com/shivastunts/Servic.git'
    }
    
    stage('gradle Package'){
@@ -9,107 +9,133 @@ node{
      sh "${gradleCMD} clean build"
    } 
    
-     stage('Creating Dockerfile'){
-     sh label: '', script: '''cd /var/lib/jenkins/workspace/Docker.pipeline
-     '''
-     sh label: '', script: '''cat >Dockerfile <<\'EOF\'
-     FROM ubuntu
-     COPY ./build/libs/functionhall-service-0.0.1-SNAPSHOT.jar /home/ubuntu/
-     RUN apt-get update
-     COPY ./build/libs/vedikaservice.sh /usr/local/bin/
-     COPY  ./build/libs/vedikaservice.service /etc/systemd/system/
-     WORKDIR /home/ubuntu
-     RUN apt install software-properties-common apt-transport-https -y
-     RUN add-apt-repository ppa:openjdk-r/ppa -y
-     RUN apt install openjdk-8-jdk -y
-     RUN chmod +x /usr/local/bin/vedikaservice.sh
-     RUN apt-get install systemd ''
-     EXPOSE 8057
-     '''
-  }
-
-   stage('Creating vedikaservice.sh'){
-sh label: '', script: '''cd /var/lib/jenkins/workspace/Docker.pipeline/build/libs
-cat >vedikaservice.sh <<\'EOF\'
-#!/bin/sh 
-SERVICE_NAME=vedikaservice 
-PATH_TO_JAR=/home/ubuntu/functionhall-service-0.0.1-SNAPSHOT.jar
-PID_PATH_NAME=/tmp/vedikaservice-pid 
-case $1 in 
-start)
-       echo "Starting $SERVICE_NAME ..."
-  if [ ! -f $PID_PATH_NAME ]; then 
-       nohup java -jar $PATH_TO_JAR /tmp 2>> /dev/null >>/dev/null &      
-                   echo $! > $PID_PATH_NAME  
-       echo "$SERVICE_NAME started ..."         
-  else 
-       echo "$SERVICE_NAME is already running ..."
-  fi
-;;
-stop)
-  if [ -f $PID_PATH_NAME ]; then
-         PID=$(cat $PID_PATH_NAME);
-         echo "$SERVICE_NAME stoping ..." 
-         kill $PID;         
-         echo "$SERVICE_NAME stopped ..." 
-         rm $PID_PATH_NAME       
-  else          
-         echo "$SERVICE_NAME is not running ..."   
-  fi    
-;;    
-restart)  
-  if [ -f $PID_PATH_NAME ]; then 
-      PID=$(cat $PID_PATH_NAME);    
-      echo "$SERVICE_NAME stopping ..."; 
-      kill $PID;           
-      echo "$SERVICE_NAME stopped ...";  
-      rm $PID_PATH_NAME     
-      echo "$SERVICE_NAME starting ..."  
-      nohup java -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &            
-      echo $! > $PID_PATH_NAME  
-      echo "$SERVICE_NAME started ..."    
-  else           
-      echo "$SERVICE_NAME is not running ..."    
-     fi     ;;
- esac'''
-    }
-	
-	stage('Creating vedikaservice.service'){
-sh label: '', script: '''cd /var/lib/jenkins/workspace/Docker.pipeline/build/libs
-cat >vedikaservice.service <<\'EOF\'
-[Unit]
- Description = Java Service
- After network.target = vedikaservice.service
-[Service]
- Type = forking
- Restart=always
- RestartSec=1
- SuccessExitStatus=143 
- ExecStart = /usr/local/bin/vedikaservice.sh start
- ExecStop = /usr/local/bin/vedikaservice.sh stop
- ExecReload = /usr/local/bin/vedikaservice.sh reload
-[Install]
- WantedBy=multi-user.target'''
+   stage('installing Docker'){
+   sh label: '', script: '''sudo apt update -y
+sudo apt upgrade -y
+echo Install Prerequisite Packages
+sudo apt-get install curl apt-transport-https ca-certificates software-properties-common -y
+echo Add the Docker Repositories
+echo we add the GPG key, by entering the following command in the command line:
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - 
+echo Next, we add the repository:
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" -y
+echo just update the repository information:
+sudo apt update -y
+echo Install Docker on Ubuntu 16.04
+sudo apt install docker-ce -y'''
+   }
+ 
+   stage('ansible installing'){
+   sh label: '', script: '''#!/bin/bash
+   echo this script done by shiva
+   echo Installing software-properties-common packages, then add the java OpenJDK PPA repository.
+   sudo apt install software-properties-common apt-transport-https -y
+   sudo add-apt-repository ppa:openjdk-r/ppa -y
+   Now installing the Java 8 using apt command.
+   sudo apt install openjdk-8-jdk -y
+   echo java version installed on the system.
+   java -version
+   echo updating and upgrading the version
+   sudo apt-get update -y
+   sudo apt-get upgrade -y
+   echo Ansible PPA to your server
+   sudo apt-add-repository ppa:ansible/ansible \' \'
+   echo update the repository and install Ansible
+   sudo apt-get update -y
+   sudo apt-get install ansible -y
+   echo Ansible version
+   sudo ansible --version'''
    }
    
-   stage('Back to workspace'){
-   sh label: '', script: 'cd /var/lib/jenkins/workspace/Docker.pipeline'
+ stage('installing Docker'){
+   sh label: '', script: '''cd /opt
+cat >docker.sh <<\'EOF\'
+sudo apt update -y
+sudo apt upgrade -y
+echo Install Prerequisite Packages
+sudo apt-get install curl apt-transport-https ca-certificates software-properties-common -y
+echo Add the Docker Repositories
+echo we add the GPG key, by entering the following command in the command line:
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - 
+echo Next, we add the repository:
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" -y
+echo just update the repository information:
+sudo apt update -y
+echo Install Docker on Ubuntu 16.04
+sudo apt install docker-ce -y'''
+   }
+ 
+stage('Docker file'){
+sh label: '', script: '''cd /var/lib/jenkins/workspace/Docker.pipeline'''
+sh label: '', script: '''cat >Dockerfile <<\'EOF\'
+FROM java:8-jdk-alpine
+COPY ./build/libs/functionhall-service-0.0.1-SNAPSHOT.jar /usr/app/
+WORKDIR /usr/app
+EXPOSE 8057
+ENTRYPOINT ["java", "-jar", "functionhall-service-0.0.1-SNAPSHOT.jar"]'''
+}
+ 
+ stage('Creating Image'){
+ sh label: '', script: 'sudo docker build -t service .'
    }
    
-   stage('Creating Image'){
-   sh label: '', script: 'sudo docker build -t service .'
+   stage('converting Image'){
+   sh label: '', script: 'sudo docker save -o /home/ubuntu/service.tar service'
+   }
+ 
+ 
+  stage('permissions ansible dir'){
+   sh label: '', script: '''sudo chmod 777 /etc/ansible/
+   '''
+   }
+   stage('permissions ansible dir'){
+   sh label: '', script: '''sudo chmod 777 /etc/ansible/hosts
+   '''
    }
    
-   stage('Back to home/ubuntu'){
-   sh label: '', script: 'cd /home/ubuntu'
-  }
+   stage('permissions ansible dir'){
+   sh label: '', script: '''sudo mv /etc/ansible/hosts /opt
+   '''
+   }
    
-   stage('Creating container'){
-   sh label: '', script: 'sudo docker run -i -t -d -p 8010:8057 --name test service .//bin/bash' 
+   stage('adding ansible hosts'){
+   sh label: '', script: '''cd /etc/ansible
+   cat >hosts <<\'EOF\'
+   [hosts]
+   34.205.41.234
+   '''
+   }
+ 
+ stage('creating playbook'){
+ sh label: '', script: '''cd /opt/
+sudo echo "---
+-
+  hosts: 34.205.41.234
+  tasks:
+    vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:  
+  
+    -
+      copy:
+        src:  /home/ubuntu/service.tar
+        dest: /home/ubuntu/
+    -
+      copy:
+        src:  /opt/docker.sh
+        dest: /home/ubuntu/
+    -
+       shell: sudo chmod +x /home/ubuntu/docker.sh
+    -
+       shell: sudo sh /home/ubuntu/docker.sh
+    -
+       shell: sudo docker load -i /home/ubuntu/service.tar
+    -
+       shell: sudo docker run -i -t -d -p 8057:8057 --name service.container service //bin/bash" > service.yaml'''
   }
-   
-  stage('starting container'){ 
-  sh label: '', script: 'docker exec test sh /usr/local/bin/vedikaservice.sh  start'
-  }
-   
-  }
+      
+      stage('execution playbook'){
+       sh label: '', script: '''cd /opt/
+       sudo ansible-playbook service.yaml'''
+       }
+}
