@@ -21,7 +21,7 @@ echo Next, we add the repository:
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" -y
 echo just update the repository information:
 sudo apt update -y
-echo Install Docker on Ubuntu 16.04
+echo Install Docker on Ubuntu 
 sudo apt install docker-ce -y'''
    }
  
@@ -61,7 +61,7 @@ echo Next, we add the repository:
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" -y
 echo just update the repository information:
 sudo apt update -y
-echo Install Docker on Ubuntu 16.04
+echo Install Docker on Ubuntu 
 sudo apt install docker-ce -y'''
    }
  
